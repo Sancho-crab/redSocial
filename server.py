@@ -11,6 +11,7 @@ from time import time
 import sys
 
 app = Flask(__name__)
+SITE_ROOT = os.path.realpath(os.path.dirname(__file__))
 
 from flask import render_template
 # este codigo controla los errores de campos ausentes
@@ -57,7 +58,7 @@ def processLogin():
                   missing.append(field)
        if missing:
               return process_missingFields(missing, "/login")
-
+       load_user(request.form['email'], request.form['passwd'])
 
        return '<!DOCTYPE html> ' \
            '<html lang="es">' \
@@ -84,6 +85,8 @@ def processSignup():
                      missing.append(field)
        if missing:
               return process_missingFields(missing, "/signup")
+
+       create_user_file(request.form['nickname'], request.form['email'], request.form['passwd'], request.form['confirm'])
 
        return '<!DOCTYPE html> ' \
            '<html lang="es">' \
@@ -143,7 +146,7 @@ def load_user(email, passwd):
     :param passwd: password
     :return: pagina home si existe el usuario y es correcto el pass
     """
-    file_path = os.path.join('C:/Users/34617/PycharmProjects/redSocial', "data/", email)
+    file_path = os.path.join(SITE_ROOT, "data/", email)
     if not os.path.isfile(file_path):
         return process_error("User not found / No existe un usuario con ese nombre", url_for("login"))
     with open(file_path, 'r') as f:
@@ -165,7 +168,7 @@ def save_current_user():
         "email": session['email'],
         "friends": session['friends']
     }
-    file_path = os.path.join('C:/Users/34617/PycharmProjects/redSocial', "data/", session['email'])
+    file_path = os.path.join(SITE_ROOT, "data/", session['email'])
     with open(file_path, 'w') as f:
         json.dump(datos, f)
 
@@ -182,10 +185,10 @@ def create_user_file(name, email, passwd, passwd_confirmation):
     :return: Si no hay errores, dirección al usuario a home.
     """
 
-    directory = os.path.join('C:/Users/34617/PycharmProjects/redSocial', "data")
+    directory = os.path.join(SITE_ROOT, "data")
     if not os.path.exists(directory):
         os.makedirs(directory)
-    file_path = os.path.join('C:/Users/34617/PycharmProjects/redSocial', "data/", email)
+    file_path = os.path.join(SITE_ROOT, "data/", email)
     if os.path.isfile(file_path):
         return process_error("The email is already used, you must select a different email / Ya existe un usuario con ese nombre", url_for("signup"))
     if passwd != passwd_confirmation:
