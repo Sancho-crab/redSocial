@@ -1,0 +1,1 @@
+{"user_name": "asa", "password": "a", "messages": [], "friends": []}
